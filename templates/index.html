@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Vehicle Access Control System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div><div class="eyebrow">SECURITY OPERATIONS</div><h1>Vehicle Access Control <span>System</span></h1></div>
+  <div class="live"><i></i> SYSTEM ONLINE <small id="clock"></small></div>
+</header>
+<main>
+  <section class="metrics">
+    <article><label>CAMERAS</label><strong>{{ cameras|length }}</strong><small>Connected devices</small></article>
+    <article><label>ACTIVE ZONES</label><strong id="zoneCount">{{ zones|length }}</strong><small>Monitoring areas</small></article>
+    <article><label>TODAY'S EVENTS</label><strong id="eventCount">{{ events|length }}</strong><small>Access records in demo</small></article>
+    <article><label>SYSTEM STATUS</label><strong class="green">NORMAL</strong><small>All services responsive</small></article>
+  </section>
+
+  <div class="section-head"><h2>Camera Monitoring</h2><span>LIVE VIEW · DEMO MODE</span></div>
+  <section class="camera-grid">
+    {% for camera in cameras %}
+    <article class="camera-card">
+      <div class="camera-head"><b>{{ camera.name }}</b><span class="online">● {{ camera.status }}</span></div>
+      <div class="feed"><div class="scan"></div><div class="cam-icon">▣</div><b>{{ camera.location }}</b><small>Camera stream placeholder</small></div>
+      <div class="camera-foot"><span>ANPR READY</span><span>ZONE {{ camera.id }}</span></div>
+    </article>
+    {% endfor %}
+  </section>
+
+  <div class="columns">
+    <section class="panel">
+      <div class="section-head"><h2>Access Event Log</h2><span>NEWEST FIRST</span></div>
+      <div class="table-wrap"><table><thead><tr><th>TIME</th><th>PLATE NUMBER</th><th>VEHICLE</th><th>CAMERA</th><th>DECISION</th></tr></thead>
+      <tbody id="eventRows">
+      {% for e in events %}<tr><td>{{ e.time }}</td><td class="plate">{{ e.plate }}</td><td>{{ e.vehicle }}</td><td>{{ e.camera }}</td><td><span class="pill {{ e.status|lower }}">{{ e.status }}</span></td></tr>{% endfor %}
+      </tbody></table></div>
+      <form id="eventForm" class="event-form">
+        <h3>Simulate an access event</h3>
+        <input name="plate" placeholder="Vehicle plate (e.g. KA03MN4821)" required>
+        <select name="vehicle"><option>Car</option><option>Bike</option><option>Truck</option><option>Unknown</option></select>
+        <select name="camera"><option>Gate Camera 01</option><option>Gate Camera 02</option></select>
+        <select name="status"><option>AUTHORIZED</option><option>DENIED</option><option>REVIEW</option></select>
+        <button type="submit">ADD EVENT</button>
+      </form>
+    </section>
+    <section class="panel zones">
+      <div class="section-head"><h2>Detection Zones</h2><span>CONFIGURATION</span></div>
+      {% for z in zones %}
+      <div class="zone-row"><div><b>{{ z.name }}</b><small>{{ z.camera }}</small></div>
+        <button class="toggle {{ 'enabled' if z.enabled else '' }}" data-id="{{ z.id }}">{{ 'ENABLED' if z.enabled else 'DISABLED' }}</button>
+      </div>{% endfor %}
+      <div class="notice"><b>Demo implementation</b><p>Camera tiles are placeholders. This project provides the dashboard, event API and zone toggles. Connect an actual camera, vehicle detector and ANPR/OCR engine for real access decisions.</p></div>
+    </section>
+  </div>
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
